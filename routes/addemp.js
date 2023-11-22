@@ -1,13 +1,35 @@
 const express = require("express");
 const router = express.Router();
+const jwt = require('jsonwebtoken')
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 const empData = require("../model/empSchema");
 require("../db/connect");
 
+
+function verifytoken(req,res,next){
+
+
+  try{
+    const token=req.header.token;
+    console.log(token);
+    if(!token) throw 'Unauthorized';
+    let payload = jwt.verify(token,'reactempapp');
+    if(!payload) throw 'Unauthorized';
+    res.status(200).send('payload');
+    next()
+    
+  }catch(error){
+    res.status(401).send('Error')
+
+  }
+
+
+}
+
 //GET Method -----------------
 
-router.get("/", async (req, res) => {
+router.get("/",verifytoken, async (req, res) => {
   try {
     const data = await empData.find();
     res.status(200).send(data);
@@ -18,7 +40,7 @@ router.get("/", async (req, res) => {
 
 // POST Method----------
 
-router.post("/add", async (req, res) => {
+router.post("/add",verifytoken, async (req, res) => {
   try {
     var item = req.body;
     const Data = new empData(item);
@@ -31,7 +53,7 @@ router.post("/add", async (req, res) => {
 
 
 
-router.put('/edit/:id',async(req,res)=>{
+router.put('/edit/:id',verifytoken, async(req,res)=>{
   try {
       var item=req.body;
      const data= await empData.findByIdAndUpdate(req.params.id,item);
@@ -44,7 +66,7 @@ router.put('/edit/:id',async(req,res)=>{
 
 //Deleted Method-----------
 
-router.delete("/remove/:id", async (req,res) => {
+router.delete("/remove/:id",verifytoken, async (req,res) => {
  
   try {
     const BlogId = req.params.id;
