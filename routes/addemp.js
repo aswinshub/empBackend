@@ -6,26 +6,21 @@ router.use(express.urlencoded({ extended: true }));
 const empData = require("../model/empSchema");
 require("../db/connect");
 
-
 function verifytoken(req,res,next){
-
-
   try{
-    const token=req.header.token;
+    const token=req.headers.token;
     console.log(token);
     if(!token) throw 'Unauthorized';
-    let payload = jwt.verify(token,'reactempapp');
+    let payload=jwt.verify(token,'reactempapp');
     if(!payload) throw 'Unauthorized';
-    res.status(200).send('payload');
     next()
-    
-  }catch(error){
-    res.status(401).send('Error')
-
   }
-
-
+  catch(error){
+    //console.log(error);
+    res.status(401).send('error');
+  }
 }
+
 
 //GET Method -----------------
 
